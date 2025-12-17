@@ -1,0 +1,54 @@
+-- =========================
+-- DIMENSION TABLE
+-- =========================
+
+DimDate =
+ADDCOLUMNS (
+    CALENDAR ( DATE ( 2022, 1, 1 ), DATE ( 2024, 12, 31 ) ),
+    "Year", YEAR ( [Date] ),
+    "Month", FORMAT ( [Date], "MMM" ),
+    "MonthNumber", MONTH ( [Date] ),
+    "YearMonth", FORMAT ( [Date], "YYYY-MM" )
+)
+
+-- =========================
+-- BASE MEASURE
+-- =========================
+
+Total Sales =
+SUM ( FactSales[SalesAmount] )
+
+-- =========================
+-- TIME INTELLIGENCE
+-- =========================
+
+Sales YTD =
+TOTALYTD (
+    [Total Sales],
+    DimDate[Date]
+)
+
+Sales LY =
+CALCULATE (
+    [Total Sales],
+    SAMEPERIODLASTYEAR ( DimDate[Date] )
+)
+
+Sales YoY % =
+DIVIDE (
+    [Total Sales] - [Sales LY],
+    [Sales LY]
+)
+
+-- =========================
+-- PROFITABILITY
+-- =========================
+
+Profit =
+[Total Sales] - SUM ( FactSales[Cost] )
+
+Profit Margin % =
+DIVIDE (
+    [Profit],
+    [Total Sales]
+)
